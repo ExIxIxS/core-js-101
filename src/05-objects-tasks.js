@@ -57,8 +57,10 @@ function getJSON(obj) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const jsonObj = JSON.parse(json);
+  Object.setPrototypeOf(jsonObj, proto);
+  return jsonObj;
 }
 
 
@@ -146,6 +148,118 @@ const cssSelectorBuilder = {
   },
 };
 
+/*
+const cssSelectorBuilder = {
+  elementStr: '',
+  idStr: '',
+  classesStr: '',
+  attrStr: '',
+  pseudoClassesStr: '',
+  pseudoElementStr: '',
+  occurExeption: 'Element, id and pseudo-element should
+  not occur more then one time inside the selector',
+
+  element(value) {
+    if (!this.elementStr) {
+      throw new Error(this.occurExeption);
+    }
+
+    if (!this.stringify()) {
+      const newObj = Object.create(cssSelectorBuilder);
+      newObj.elementStr = value;
+      return newObj;
+    }
+    this.elementStr = value;
+    return this;
+  },
+
+  id(value) {
+    if (!this.idStr) {
+      throw new Error(this.occurExeption);
+    }
+    if (!this.stringify()) {
+      const newObj = Object.create(cssSelectorBuilder);
+      newObj.idStr = `#${value}`;
+      return newObj;
+    }
+    this.idStr = `#${value}`;
+    return this;
+  },
+
+  class(value) {
+    if (!this.stringify()) {
+      const newObj = Object.create(cssSelectorBuilder);
+      newObj.classesStr = `.${value}`;
+      return newObj;
+    }
+    this.classesStr += `.${value}`;
+    return this;
+  },
+
+  attr(attribute) {
+    const currentAttr = this.attrStr.slice(1, -1);
+    const [key, value] = attribute.split('=');
+    const attrObj = {};
+    attrObj[key] = value;
+    const attrArr = Object.entries(attrObj)
+    .map(([keyAttr, valueAttr]) => `${keyAttr}=${valueAttr}`);
+    const attrStr = (currentAttr)
+      ? `[${currentAttr} ${attrArr.join(' ')}]`
+      : `[${attrArr.join(' ')}]`;
+    if (!this.stringify()) {
+      const newObj = Object.create(cssSelectorBuilder);
+      newObj.attrStr = attrStr;
+      return newObj;
+    }
+    this.attrStr = attrStr;
+    return this;
+  },
+
+  pseudoClass(value) {
+    if (!this.stringify()) {
+      const newObj = Object.create(cssSelectorBuilder);
+      newObj.pseudoClassesStr = `:${value}`;
+      return newObj;
+    }
+    this.pseudoClassesStr += `:${value}`;
+    return this;
+  },
+
+  pseudoElement(value) {
+    if (!this.pseudoElementStr) {
+      throw new Error(this.occurExeption);
+    }
+    if (!this.stringify()) {
+      const newObj = Object.create(cssSelectorBuilder);
+      newObj.pseudoElementStr = `::${value}`;
+      return newObj;
+    }
+    this.pseudoElementStr += `::${value}`;
+    return this;
+  },
+
+  combine(selector1, combinator, selector2) {
+    const newObj = {
+      combineStr: `${selector1.stringify()} ${combinator} ${selector2.stringify()}`,
+      stringify() {
+        return this.combineStr;
+      },
+    };
+    return newObj;
+  },
+
+  stringify() {
+    const str = `
+${this.elementStr}
+${this.idStr}
+${this.classesStr}
+${this.attrStr}
+${this.pseudoClassesStr}
+${this.pseudoElementStr}`;
+    return str.replaceAll('\n', '');
+  },
+};
+*/
 
 module.exports = {
   Rectangle,
