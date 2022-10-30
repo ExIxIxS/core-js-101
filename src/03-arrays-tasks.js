@@ -36,8 +36,10 @@ function findElement(arr, value) {
  *    5 => [ 1, 3, 5, 7, 9 ]
  */
 function generateOdds(len) {
-  const arr = Array(len * 2 - 1).fill('').map((item, index) => index + 1);
-  return arr.filter((item) => item % 2 !== 0);
+  return Array(len * 2 - 1)
+    .fill(null)
+    .map((item, index) => index + 1)
+    .filter((item) => item % 2 !== 0);
 }
 
 
@@ -201,8 +203,10 @@ function getTail(arr, n) {
  *    +'30,31,32,33,34'
  */
 function toCsvText(arr) {
-  const firstStepArr = arr.map((item) => `${item.join(',')}\n`);
-  return firstStepArr.join('').slice(0, -1);
+  return arr
+    .map((item) => `${item.join(',')}\n`)
+    .join('')
+    .slice(0, -1);
 }
 
 /**
@@ -344,8 +348,10 @@ function sortDigitNamesByNumericOrder(arr) {
   const numLibKeys = Object.keys(numLib);
   const numLibVal = Object.values(numLib);
 
-  const numArr = arr.map((item) => numLib[item]).sort();
-  return numArr.map((item) => numLibKeys[numLibVal.findIndex((val) => val === item)]);
+  return arr
+    .map((item) => numLib[item])
+    .sort()
+    .map((item) => numLibKeys[numLibVal.indexOf(item)]);
 }
 
 /**
@@ -452,6 +458,7 @@ function sortCitiesArray(arr) {
   }
   arr.sort((a, b) => compareFunction(a, b, 'city'));
   arr.sort((a, b) => compareFunction(a, b, 'country'));
+
   return arr;
 }
 
@@ -474,11 +481,13 @@ function sortCitiesArray(arr) {
  *           [0,0,0,0,1]]
  */
 function getIdentityMatrix(n) {
-  const zeroArr = Array(n).fill([]).map(() => Array(n).fill(0));
-  return zeroArr.map((subArr, index) => {
-    subArr.splice(index, 1, 1);
-    return subArr;
-  });
+  return Array(n)
+    .fill([])
+    .map(() => Array(n).fill(0))
+    .map((subArr, index) => {
+      subArr.splice(index, 1, 1);
+      return subArr;
+    });
 }
 
 /**
@@ -495,7 +504,9 @@ function getIdentityMatrix(n) {
  *     3, 3   => [ 3 ]
  */
 function getIntervalArray(start, end) {
-  return Array(end - start + 1).fill(0).map((item, index) => start + index);
+  return Array(end - start + 1)
+    .fill(null)
+    .map((item, index) => start + index);
 }
 
 /**
@@ -552,6 +563,7 @@ function group(array, keySelector, valueSelector) {
     mapArr[selIndex][1].push(valueSelector(obj));
     return null;
   });
+
   return mapArr;
 }
 
@@ -569,7 +581,9 @@ function group(array, keySelector, valueSelector) {
  *   ['one','two','three'], (x) => x.split('')  =>   ['o','n','e','t','w','o','t','h','r','e','e']
  */
 function selectMany(arr, childrenSelector) {
-  return arr.map((item) => childrenSelector(item)).flat();
+  return arr
+    .map((item) => childrenSelector(item))
+    .flat();
 }
 
 
@@ -617,6 +631,7 @@ function swapHeadAndTail(arr) {
   if (arr.length < 2) {
     return arr;
   }
+
   const halfLength = Math.floor(arr.length / 2);
   const head = arr.slice(0, halfLength);
   const middle = (halfLength * 2 === arr.length)
@@ -625,6 +640,7 @@ function swapHeadAndTail(arr) {
   const tail = (halfLength * 2 === arr.length)
     ? arr.slice(halfLength)
     : arr.slice(halfLength + 1);
+
   return tail.concat(middle, head);
 }
 

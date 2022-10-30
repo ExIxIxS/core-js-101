@@ -68,6 +68,7 @@ function getPolynom(...args) {
     args.forEach((coef, index) => {
       result += coef * x ** (args.length - index - 1);
     });
+
     return result;
   };
 }
@@ -199,6 +200,7 @@ function partialUsingArguments(fn, ...args1) {
  */
 function getIdGeneratorFunction(startFrom) {
   let curentId = startFrom;
+
   return () => {
     const result = curentId;
     curentId += 1;

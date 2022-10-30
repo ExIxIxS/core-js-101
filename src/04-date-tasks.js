@@ -63,6 +63,7 @@ function isLeapYear(date) {
   } else if (YEAR % 400 !== 0) {
     result = false;
   }
+
   return result;
 }
 
@@ -83,24 +84,25 @@ function isLeapYear(date) {
  */
 function timeSpanToString(startDate, endDate) {
   const dDiff = endDate - startDate;
-  const diffObj = {};
-  diffObj.HH = Math.floor(dDiff / (60 * 60 * 1000));
-  diffObj.mm = Math.floor((dDiff - diffObj.HH * 60 * 60 * 1000) / (60 * 1000));
-  diffObj.ss = Math.floor((dDiff - diffObj.HH * 60 * 60 * 1000
-                           - diffObj.mm * 60 * 1000) / (1000));
-  diffObj.sss = dDiff % 1000;
+  const tObj = {};
+  tObj.HH = Math.floor(dDiff / (60 * 60 * 1000));
+  tObj.mm = Math.floor((dDiff - tObj.HH * 60 * 60 * 1000) / (60 * 1000));
+  tObj.ss = Math.floor((dDiff - tObj.HH * 60 * 60 * 1000
+                           - tObj.mm * 60 * 1000) / (1000));
+  tObj.sss = dDiff % 1000;
 
-  Object.entries(diffObj).forEach(([key, value]) => {
+  Object.entries(tObj).forEach(([key, value]) => {
     if (value.toString().length === 1
         || (value.toString().length === 2 && key.length === 3)) {
       if (key.length === 2) {
-        diffObj[key] = `0${value}`;
+        tObj[key] = `0${value}`;
       } else {
-        diffObj[key] = `00${value}`;
+        tObj[key] = `00${value}`;
       }
     }
   });
-  return `${diffObj.HH}:${diffObj.mm}:${diffObj.ss}.${diffObj.sss}`;
+
+  return `${tObj.HH}:${tObj.mm}:${tObj.ss}.${tObj.sss}`;
 }
 
 
@@ -128,6 +130,7 @@ function angleBetweenClockHands(date) {
   const handMM = 6 * MM;
   const angle = Math.abs(handHH - handMM);
   const result = (angle > 180) ? 360 - angle : angle;
+
   return result * (Math.PI / 180);
 }
 

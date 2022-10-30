@@ -75,6 +75,7 @@ function getDistanceBetweenPoints(x1, y1, x2, y2) {
   const [xArr, yArr] = [[x1, x2], [y1, y2]];
   const xLength = Math.max(...xArr) - Math.min(...xArr);
   const yLength = Math.max(...yArr) - Math.min(...yArr);
+
   return Math.sqrt(xLength ** 2 + yLength ** 2);
 }
 
@@ -118,6 +119,7 @@ function getAngleBetweenVectors(x1, y1, x2, y2) {
   const modA = Math.sqrt(x1 ** 2 + y1 ** 2);
   const modB = Math.sqrt(x2 ** 2 + y2 ** 2);
   const cos = scalarProduct / (modA * modB);
+
   return Math.acos(cos);
 }
 
@@ -222,6 +224,7 @@ function isPrime(n) {
       return false;
     }
   }
+
   return true;
 }
 
@@ -242,6 +245,7 @@ function isPrime(n) {
  */
 function toNumber(value, def) {
   const toNum = Number(value);
+
   return (!Number.isNaN(toNum)) ? toNum : def;
 }
 

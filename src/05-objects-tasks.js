@@ -24,10 +24,7 @@ function Rectangle(width, height) {
   this.width = width;
   this.height = height;
 
-  // eslint-disable-next-line func-names
-  this.getArea = function () {
-    return this.width * this.height;
-  };
+  this.getArea = () => this.width * this.height;
 }
 
 
@@ -60,6 +57,7 @@ function getJSON(obj) {
 function fromJSON(proto, json) {
   const jsonObj = JSON.parse(json);
   Object.setPrototypeOf(jsonObj, proto);
+
   return jsonObj;
 }
 
@@ -119,26 +117,6 @@ function fromJSON(proto, json) {
  */
 
 const cssSelectorBuilder = {
-  constructor: {
-    elementStr: {
-      value: '', enumerable: true, writable: true, configurable: true,
-    },
-    idStr: {
-      value: '', enumerable: true, writable: true, configurable: true,
-    },
-    classesStr: {
-      value: '', enumerable: true, writable: true, configurable: true,
-    },
-    attrStr: {
-      value: '', enumerable: true, writable: true, configurable: true,
-    },
-    pseudoClassesStr: {
-      value: '', enumerable: true, writable: true, configurable: true,
-    },
-    pseudoElementStr: {
-      value: '', enumerable: true, writable: true, configurable: true,
-    },
-  },
 
   elementStr: '',
   idStr: '',
@@ -148,6 +126,14 @@ const cssSelectorBuilder = {
   pseudoElementStr: '',
   partsOrder: [],
 
+  propLib: {
+    element: 'elementStr',
+    id: 'idStr',
+    class: 'classesStr',
+    attr: 'attrStr',
+    pseudoClass: 'pseudoClassesStr',
+    pseudoElement: 'pseudoElementStr',
+  },
   correctOrder: ['element', 'id', 'class', 'attr', 'pseudoClass', 'pseudoElement'],
   occurExeption: 'Element, id and pseudo-element should not occur more then one time inside the selector',
   rangeExeption: 'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
@@ -173,22 +159,81 @@ const cssSelectorBuilder = {
     return this;
   },
 
+  buildNewObj() {
+    const newObj = Object.create(this, {
+      elementStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      idStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      classesStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      attrStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      pseudoClassesStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      pseudoElementStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      partsOrder: {
+        value: [], enumerable: true, writable: true, configurable: true,
+      },
+    });
+    return newObj;
+  },
+
+  processElement(partValue, partName) {
+    let currentValue;
+
+    switch (partName) {
+      case 'element':
+        currentValue = partValue;
+        break;
+      case 'id':
+        currentValue = `#${partValue}`;
+        break;
+      case 'class':
+        currentValue = `${this.classesStr}.${partValue}`;
+        break;
+      case 'attr': {
+        const currentAttr = this.attrStr.slice(1, -1);
+        const [key, value] = partValue.split('=');
+        const attrObj = { [key]: value };
+        const attrArr = Object.entries(attrObj)
+          .map(([keyAttr, valueAttr]) => `${keyAttr}=${valueAttr}`);
+
+        currentValue = (currentAttr)
+          ? `[${currentAttr} ${attrArr.join(' ')}]`
+          : `[${attrArr.join(' ')}]`;
+        break;
+      }
+      case 'pseudoClass':
+        currentValue = `${this.pseudoClassesStr}:${partValue}`;
+        break;
+      case 'pseudoElement':
+        currentValue = `${this.pseudoElementStr}::${partValue}`;
+        break;
+      default:
+        break;
+    }
+
+    const propName = this.propLib[partName];
+    this[propName] = `${currentValue}`;
+    this.addPartToOrder(partName);
+    this.checkElemOrder();
+  },
+
   element(value) {
     if (this.elementStr) {
       throw new Error(this.occurExeption);
     }
 
-    let currentObj = this;
-
-    if (!this.stringify()) {
-      const newObj = Object.create(this, { ...this.constructor });
-      newObj.partsOrder = [];
-      currentObj = newObj;
-    }
-
-    currentObj.elementStr = value;
-    currentObj.addPartToOrder('element');
-    currentObj.checkElemOrder();
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'element');
 
     return currentObj;
   },
@@ -198,95 +243,40 @@ const cssSelectorBuilder = {
       throw new Error(this.occurExeption);
     }
 
-    let currentObj = this;
-
-    if (!this.stringify()) {
-      const newObj = Object.create(this, { ...this.constructor });
-      newObj.partsOrder = [];
-      currentObj = newObj;
-    }
-
-    currentObj.idStr = `#${value}`;
-    currentObj.addPartToOrder('id');
-    currentObj.checkElemOrder();
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'id');
 
     return currentObj;
   },
 
   class(value) {
-    let currentObj = this;
-
-    if (!this.stringify()) {
-      const newObj = Object.create(this, { ...this.constructor });
-      newObj.partsOrder = [];
-      currentObj = newObj;
-    }
-
-    currentObj.classesStr += `.${value}`;
-    currentObj.addPartToOrder('class');
-    currentObj.checkElemOrder();
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'class');
 
     return currentObj;
   },
 
   attr(attribute) {
-    const currentAttr = this.attrStr.slice(1, -1);
-    const [key, value] = attribute.split('=');
-    const attrObj = {};
-    attrObj[key] = value;
-    const attrArr = Object.entries(attrObj)
-      .map(([keyAttr, valueAttr]) => `${keyAttr}=${valueAttr}`);
-    const attrStr = (currentAttr)
-      ? `[${currentAttr} ${attrArr.join(' ')}]`
-      : `[${attrArr.join(' ')}]`;
-
-    let currentObj = this;
-
-    if (!this.stringify()) {
-      const newObj = Object.create(this, { ...this.constructor });
-      newObj.partsOrder = [];
-      currentObj = newObj;
-    }
-
-    currentObj.attrStr = attrStr;
-    currentObj.addPartToOrder('attr');
-    currentObj.checkElemOrder();
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, attribute, 'attr');
 
     return currentObj;
   },
 
   pseudoClass(value) {
-    let currentObj = this;
-
-    if (!this.stringify()) {
-      const newObj = Object.create(this, { ...this.constructor });
-      newObj.partsOrder = [];
-      currentObj = newObj;
-    }
-
-    currentObj.pseudoClassesStr += `:${value}`;
-    currentObj.addPartToOrder('pseudoClass');
-    currentObj.checkElemOrder();
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'pseudoClass');
 
     return currentObj;
   },
 
   pseudoElement(value) {
-    let currentObj = this;
-
     if (this.pseudoElementStr) {
       throw new Error(this.occurExeption);
     }
 
-    if (!this.stringify()) {
-      const newObj = Object.create(this, { ...this.constructor });
-      newObj.partsOrder = [];
-      currentObj = newObj;
-    }
-
-    currentObj.pseudoElementStr += `::${value}`;
-    currentObj.addPartToOrder('pseudoElement');
-    currentObj.checkElemOrder();
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'pseudoElement');
 
     return currentObj;
   },

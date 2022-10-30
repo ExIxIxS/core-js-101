@@ -57,6 +57,7 @@ function getFactorial(n) {
   for (let i = 1; i <= n; i += 1) {
     fact *= i;
   }
+
   return fact;
 }
 
@@ -78,6 +79,7 @@ function getSumBetweenNumbers(n1, n2) {
   for (let i = n1; i <= n2; i += 1) {
     sum += i;
   }
+
   return sum;
 }
 
@@ -186,6 +188,7 @@ function isInsideCircle(circle, point) {
   const vectX = Math.abs(point.x - circle.center.x);
   const vectY = Math.abs(point.y - circle.center.y);
   const vectLength = Math.sqrt(vectX ** 2 + vectY ** 2);
+
   return (vectLength < circle.radius);
 }
 
@@ -203,18 +206,19 @@ function isInsideCircle(circle, point) {
  */
 function findFirstSingleChar(str) {
   const charArr = str.split('');
-  const uniqChars = Array.from(new Set(charArr));
-  const countArr = uniqChars.map((char) => {
-    let amount = 0;
-    charArr.forEach((item) => {
-      if (item === char) {
-        amount += 1;
-      }
+  const countArr = Array.from(new Set(charArr))
+    .map((char) => {
+      let amount = 0;
+      charArr.forEach((item) => {
+        if (item === char) {
+          amount += 1;
+        }
+      });
+      return [char, amount];
     });
-    return [char, amount];
-  });
 
   const resultElement = countArr.find((elem) => elem[1] === 1);
+
   return (resultElement) ? resultElement[0] : null;
 }
 
@@ -244,6 +248,7 @@ function findFirstSingleChar(str) {
 function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
   const start = (isStartIncluded) ? '[' : '(';
   const end = (isEndIncluded) ? ']' : ')';
+
   return `${start}${Math.min(a, b)}, ${Math.max(a, b)}${end}`;
 }
 
@@ -261,7 +266,10 @@ function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
  * 'noon' => 'noon'
  */
 function reverseString(str) {
-  return str.split('').reverse().join('');
+  return str
+    .split('')
+    .reverse()
+    .join('');
 }
 
 
@@ -278,7 +286,11 @@ function reverseString(str) {
  *   34143 => 34143
  */
 function reverseInteger(num) {
-  return Number(num.toString().split('').reverse().join(''));
+  return +num
+    .toString()
+    .split('')
+    .reverse()
+    .join('');
 }
 
 
@@ -303,7 +315,11 @@ function reverseInteger(num) {
  *   4916123456789012 => false
  */
 function isCreditCardNumber(ccn) {
-  const ccnArr = ccn.toString().split('').reverse();
+  const ccnArr = ccn
+    .toString()
+    .split('')
+    .reverse();
+
   const newArr = ccnArr.map((digit, index) => {
     if (index % 2 === 0) {
       return +digit;
@@ -313,6 +329,7 @@ function isCreditCardNumber(ccn) {
   });
 
   const sum = newArr.reduce((prev, next) => prev + next);
+
   return (sum % 10 === 0);
 }
 
@@ -367,6 +384,7 @@ function isBracketsBalanced(str) {
   const openLib = ['[', '(', '{', '<'];
   const closeLib = [']', ')', '}', '>'];
   const charArr = str.split('');
+
   charArr.forEach((char) => {
     if (openLib.includes(char)) {
       resultExpr.push(char);
@@ -433,6 +451,7 @@ function getCommonDirectoryPath(pathes) {
       result.push(`${pathArrs[0][i]}/`);
     }
   }
+
   return result.join('');
 }
 
@@ -475,6 +494,7 @@ function getMatrixProduct(m1, m2) {
     }
     resultArr.push(subArr);
   }
+
   return resultArr;
 }
 
