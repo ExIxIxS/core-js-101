@@ -83,6 +83,19 @@ function isLeapYear(date) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
 function timeSpanToString(startDate, endDate) {
+  function prepareForOutput() {
+    Object.entries(this).forEach(([key, value]) => {
+      if (value.toString().length === 1
+        || (value.toString().length === 2 && key.length === 3)) {
+        if (key.length === 2) {
+          this[key] = `0${value}`;
+        } else {
+          this[key] = `00${value}`;
+        }
+      }
+    });
+  }
+
   const dDiff = endDate - startDate;
   const tObj = {};
   tObj.HH = Math.floor(dDiff / (60 * 60 * 1000));
@@ -91,16 +104,7 @@ function timeSpanToString(startDate, endDate) {
                            - tObj.mm * 60 * 1000) / (1000));
   tObj.sss = dDiff % 1000;
 
-  Object.entries(tObj).forEach(([key, value]) => {
-    if (value.toString().length === 1
-        || (value.toString().length === 2 && key.length === 3)) {
-      if (key.length === 2) {
-        tObj[key] = `0${value}`;
-      } else {
-        tObj[key] = `00${value}`;
-      }
-    }
-  });
+  prepareForOutput.call(tObj);
 
   return `${tObj.HH}:${tObj.mm}:${tObj.ss}.${tObj.sss}`;
 }

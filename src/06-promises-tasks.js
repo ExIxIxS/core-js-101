@@ -105,24 +105,29 @@ function getFastestPromise(array) {
 function solvePromises(arrayOfPromises = []) {
   return new Promise((resolve) => {
     const result = [];
-    arrayOfPromises.forEach((item) => {
-      item
+    arrayOfPromises.forEach((prom) => {
+      prom
         .then((value) => {
           result.push(value);
-          if (arrayOfPromises.length === result.length) resolve(result);
         })
         .catch(() => {
           result.push(null);
-          if (arrayOfPromises.length === result.length) resolve(result);
+        })
+        .finally(() => {
+          if (arrayOfPromises.length === result.length) {
+            resolve(result);
+          }
         });
     });
   });
 }
 
 async function chainPromises(array, action) {
-  const mappedPromises = await solvePromises(array);
-  const resultArr = mappedPromises.filter((item) => item !== null);
-  return resultArr.reduce((prev, next) => action(prev, next));
+  const solvedPromises = await solvePromises(array);
+
+  return solvedPromises
+    .filter((item) => item !== null)
+    .reduce((prev, next) => action(prev, next));
 }
 
 

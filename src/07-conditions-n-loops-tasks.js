@@ -475,13 +475,19 @@ function getCommonDirectoryPath(pathes) {
  *
  */
 function getMatrixProduct(m1, m2) {
-  const m2Hor = [];
-  for (let i = 0; i < m2.length; i += 1) {
-    m2Hor.push(m2.map((subArr) => subArr[i]));
+  function convertVertArrToHor(verArr) {
+    const horArr = [];
+    for (let i = 0; i < m2.length; i += 1) {
+      const horLine = verArr.map((subArr) => subArr[i]);
+      horArr.push(horLine);
+    }
+
+    return horArr;
   }
 
   const resultArr = [];
   const resultArrLen = m1.length;
+  const m2Hor = convertVertArrToHor(m2);
   const iterAmount = m2Hor.length;
   for (let k = 0; k < resultArrLen; k += 1) {
     const subArr = [];
@@ -529,25 +535,39 @@ function getMatrixProduct(m1, m2) {
  *    [    ,   ,    ]]
  *
  */
+
 function evaluateTicTacToePosition(table) {
-  const tableLen = table.length;
-  for (let i = 0; i < tableLen; i += 1) {
-    for (let j = 0; j < tableLen; j += 1) {
-      const item = table[i][j];
-      if (!item) {
-        table[i].splice(j, 1, null);
+  function fillEmptyWithNull(tab) {
+    const modTab = JSON.parse(JSON.stringify(tab)); //  deep clone
+    const tableLen = modTab.length;
+    for (let i = 0; i < tableLen; i += 1) {
+      for (let j = 0; j < tableLen; j += 1) {
+        const item = modTab[i][j];
+        if (!item) {
+          modTab[i].splice(j, 1, null);
+        }
       }
     }
+    return modTab;
   }
-  const linesArr = [...table];
-  const mainDiag = [];
-  const auxDiag = [];
-  for (let i = 0; i < tableLen; i += 1) {
-    linesArr.push(table.map((line) => line[i])); //   vert lines
-    mainDiag.push(table[i][i]);
-    auxDiag.push(table[i][Math.abs(tableLen - 1 - i)]);
+
+  function getLines(tab) {
+    const tableLen = tab.length;
+    const mainDiag = [];
+    const auxDiag = [];
+    const linesArr = [...tab]; // horizon lines
+    for (let i = 0; i < tableLen; i += 1) {
+      linesArr.push(tab.map((line) => line[i])); // vert lines
+      mainDiag.push(tab[i][i]);
+      auxDiag.push(tab[i][Math.abs(tableLen - 1 - i)]);
+    }
+    linesArr.push(mainDiag, auxDiag);
+
+    return linesArr;
   }
-  linesArr.push(mainDiag, auxDiag);
+
+  const newTable = fillEmptyWithNull(table);
+  const linesArr = getLines(newTable);
 
   const winArr = linesArr.find((line) => {
     const uniqChars = Array.from(new Set(line));
