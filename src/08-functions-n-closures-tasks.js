@@ -63,14 +63,8 @@ function getPowerFunction(exponent) {
  *   getPolynom()      => null
  */
 function getPolynom(...args) {
-  return (x) => {
-    let result = null;
-    args.forEach((coef, index) => {
-      result += coef * x ** (args.length - index - 1);
-    });
-
-    return result;
-  };
+  return (x) => args
+    .reduce((acc, coef, index) => acc + coef * x ** (args.length - index - 1), null);
 }
 
 
@@ -90,10 +84,12 @@ function getPolynom(...args) {
  */
 function memoize(func) {
   let cache;
+
   return () => {
     if (!cache) {
       cache = func();
     }
+
     return cache;
   };
 }
@@ -204,6 +200,7 @@ function getIdGeneratorFunction(startFrom) {
   return () => {
     const result = curentId;
     curentId += 1;
+
     return result;
   };
 }

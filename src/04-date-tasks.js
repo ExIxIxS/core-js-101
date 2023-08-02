@@ -55,16 +55,20 @@ function parseDataFromIso8601(value) {
  */
 function isLeapYear(date) {
   const YEAR = date.getFullYear();
-  let result = true;
+
   if (YEAR % 4 !== 0) {
-    result = false;
-  } else if (YEAR % 100 !== 0) {
-    result = true;
-  } else if (YEAR % 400 !== 0) {
-    result = false;
+    return false;
   }
 
-  return result;
+  if (YEAR % 100 !== 0) {
+    return true;
+  }
+
+  if (YEAR % 400 !== 0) {
+    return false;
+  }
+
+  return true;
 }
 
 /**
@@ -83,30 +87,41 @@ function isLeapYear(date) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
 function timeSpanToString(startDate, endDate) {
-  function prepareForOutput() {
-    Object.entries(this).forEach(([key, value]) => {
-      if (value.toString().length === 1
-        || (value.toString().length === 2 && key.length === 3)) {
-        if (key.length === 2) {
-          this[key] = `0${value}`;
-        } else {
-          this[key] = `00${value}`;
-        }
-      }
-    });
+  function getTimeObj() {
+    const dDiff = endDate - startDate;
+    const tObj = {};
+    tObj.HH = Math.floor(dDiff / (60 * 60 * 1000));
+    tObj.mm = Math.floor((dDiff - tObj.HH * 60 * 60 * 1000) / (60 * 1000));
+    tObj.ss = Math.floor((dDiff - tObj.HH * 60 * 60 * 1000
+                             - tObj.mm * 60 * 1000) / (1000));
+    tObj.sss = dDiff % 1000;
+
+    return tObj;
   }
 
-  const dDiff = endDate - startDate;
-  const tObj = {};
-  tObj.HH = Math.floor(dDiff / (60 * 60 * 1000));
-  tObj.mm = Math.floor((dDiff - tObj.HH * 60 * 60 * 1000) / (60 * 1000));
-  tObj.ss = Math.floor((dDiff - tObj.HH * 60 * 60 * 1000
-                           - tObj.mm * 60 * 1000) / (1000));
-  tObj.sss = dDiff % 1000;
+  function convertForOutput(timeObj) {
+    const convertedEntries = Object
+      .entries(timeObj)
+      .map(([key, value]) => {
+        if (value.toString().length === 1
+          || (value.toString().length === 2 && key.length === 3)) {
+          if (key.length === 2) {
+            return [key, `0${value}`];
+          }
 
-  prepareForOutput.call(tObj);
+          return [key, `00${value}`];
+        }
 
-  return `${tObj.HH}:${tObj.mm}:${tObj.ss}.${tObj.sss}`;
+        return [key, value];
+      });
+
+    return Object.fromEntries(convertedEntries);
+  }
+
+  const rawTime = getTimeObj();
+  const time = convertForOutput(rawTime);
+
+  return `${time.HH}:${time.mm}:${time.ss}.${time.sss}`;
 }
 
 
@@ -127,15 +142,21 @@ function timeSpanToString(startDate, endDate) {
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
 function angleBetweenClockHands(date) {
-  let HH = date.getUTCHours();
-  HH = (HH > 11) ? HH - 12 : HH;
+  const hours = date.getUTCHours();
+  const HH = (hours > 11)
+    ? hours - 12
+    : hours;
+
   const MM = date.getUTCMinutes();
+
   const handHH = 0.5 * (HH * 60 + MM);
   const handMM = 6 * MM;
   const angle = Math.abs(handHH - handMM);
-  const result = (angle > 180) ? 360 - angle : angle;
+  const resultAngle = (angle > 180)
+    ? 360 - angle
+    : angle;
 
-  return result * (Math.PI / 180);
+  return resultAngle * (Math.PI / 180);
 }
 
 

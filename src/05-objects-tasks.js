@@ -144,6 +144,7 @@ const cssSelectorBuilder = {
         this.partsOrder.push(partName);
       }
     }
+
     return this;
   },
 
