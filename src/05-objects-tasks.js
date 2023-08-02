@@ -20,8 +20,11 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+
+  this.getArea = () => this.width * this.height;
 }
 
 
@@ -35,8 +38,8 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
 
@@ -51,8 +54,11 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const jsonObj = JSON.parse(json);
+  Object.setPrototypeOf(jsonObj, proto);
+
+  return jsonObj;
 }
 
 
@@ -111,35 +117,191 @@ function fromJSON(/* proto, json */) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+
+  elementStr: '',
+  idStr: '',
+  classesStr: '',
+  attrStr: '',
+  pseudoClassesStr: '',
+  pseudoElementStr: '',
+  partsOrder: [],
+
+  propLib: {
+    element: 'elementStr',
+    id: 'idStr',
+    class: 'classesStr',
+    attr: 'attrStr',
+    pseudoClass: 'pseudoClassesStr',
+    pseudoElement: 'pseudoElementStr',
+  },
+  correctOrder: ['element', 'id', 'class', 'attr', 'pseudoClass', 'pseudoElement'],
+  occurExeption: 'Element, id and pseudo-element should not occur more then one time inside the selector',
+  rangeExeption: 'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
+
+  addPartToOrder(partName) {
+    if (this.partsOrder && partName) {
+      if (this.partsOrder.at(-1) !== partName) {
+        this.partsOrder.push(partName);
+      }
+    }
+    return this;
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  checkElemOrder() {
+    const currentElement = this.partsOrder.at(-1);
+    const currentArr = this.partsOrder.slice(0, -1);
+    const sampleArr = this.correctOrder.slice(0, this.correctOrder.indexOf(currentElement));
+
+    if (!currentArr.every((item) => sampleArr.includes(item))) {
+      throw new Error(this.rangeExeption);
+    }
+
+    return this;
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  buildNewObj() {
+    const newObj = Object.create(this, {
+      elementStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      idStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      classesStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      attrStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      pseudoClassesStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      pseudoElementStr: {
+        value: '', enumerable: true, writable: true, configurable: true,
+      },
+      partsOrder: {
+        value: [], enumerable: true, writable: true, configurable: true,
+      },
+    });
+    return newObj;
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  processElement(partValue, partName) {
+    let currentValue;
+
+    switch (partName) {
+      case 'element':
+        currentValue = partValue;
+        break;
+      case 'id':
+        currentValue = `#${partValue}`;
+        break;
+      case 'class':
+        currentValue = `${this.classesStr}.${partValue}`;
+        break;
+      case 'attr': {
+        const currentAttr = this.attrStr.slice(1, -1);
+        const [key, value] = partValue.split('=');
+        const attrObj = { [key]: value };
+        const attrArr = Object.entries(attrObj)
+          .map(([keyAttr, valueAttr]) => `${keyAttr}=${valueAttr}`);
+
+        currentValue = (currentAttr)
+          ? `[${currentAttr} ${attrArr.join(' ')}]`
+          : `[${attrArr.join(' ')}]`;
+        break;
+      }
+      case 'pseudoClass':
+        currentValue = `${this.pseudoClassesStr}:${partValue}`;
+        break;
+      case 'pseudoElement':
+        currentValue = `${this.pseudoElementStr}::${partValue}`;
+        break;
+      default:
+        break;
+    }
+
+    const propName = this.propLib[partName];
+    this[propName] = `${currentValue}`;
+    this.addPartToOrder(partName);
+    this.checkElemOrder();
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    if (this.elementStr) {
+      throw new Error(this.occurExeption);
+    }
+
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'element');
+
+    return currentObj;
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    if (this.idStr) {
+      throw new Error(this.occurExeption);
+    }
+
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'id');
+
+    return currentObj;
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  class(value) {
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'class');
+
+    return currentObj;
+  },
+
+  attr(attribute) {
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, attribute, 'attr');
+
+    return currentObj;
+  },
+
+  pseudoClass(value) {
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'pseudoClass');
+
+    return currentObj;
+  },
+
+  pseudoElement(value) {
+    if (this.pseudoElementStr) {
+      throw new Error(this.occurExeption);
+    }
+
+    const currentObj = (this.stringify()) ? this : this.buildNewObj();
+    this.processElement.call(currentObj, value, 'pseudoElement');
+
+    return currentObj;
+  },
+
+  combine(selector1, combinator, selector2) {
+    const newObj = {
+      combineStr: `${selector1.stringify()} ${combinator} ${selector2.stringify()}`,
+      stringify() {
+        return this.combineStr;
+      },
+    };
+    return newObj;
+  },
+
+  stringify() {
+    const str = `
+${this.elementStr}
+${this.idStr}
+${this.classesStr}
+${this.attrStr}
+${this.pseudoClassesStr}
+${this.pseudoElementStr}`;
+    return str.replaceAll('\n', '');
   },
 };
-
 
 module.exports = {
   Rectangle,

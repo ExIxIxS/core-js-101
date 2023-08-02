@@ -19,8 +19,8 @@
  *    'Tue, 26 Jan 2016 13:48:02 GMT' => Date()
  *    'Sun, 17 May 1998 03:00:00 GMT+01' => Date()
  */
-function parseDataFromRfc2822(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromRfc2822(value) {
+  return new Date(value);
 }
 
 /**
@@ -34,8 +34,8 @@ function parseDataFromRfc2822(/* value */) {
  *    '2016-01-19T16:07:37+00:00'    => Date()
  *    '2016-01-19T08:07:37Z' => Date()
  */
-function parseDataFromIso8601(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromIso8601(value) {
+  return new Date(value);
 }
 
 
@@ -53,10 +53,19 @@ function parseDataFromIso8601(/* value */) {
  *    Date(2012,1,1)    => true
  *    Date(2015,1,1)    => false
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
-}
+function isLeapYear(date) {
+  const YEAR = date.getFullYear();
+  let result = true;
+  if (YEAR % 4 !== 0) {
+    result = false;
+  } else if (YEAR % 100 !== 0) {
+    result = true;
+  } else if (YEAR % 400 !== 0) {
+    result = false;
+  }
 
+  return result;
+}
 
 /**
  * Returns the string representation of the timespan between two dates.
@@ -73,8 +82,31 @@ function isLeapYear(/* date */) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,10,0,0,250)     => "00:00:00.250"
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
-function timeSpanToString(/* startDate, endDate */) {
-  throw new Error('Not implemented');
+function timeSpanToString(startDate, endDate) {
+  function prepareForOutput() {
+    Object.entries(this).forEach(([key, value]) => {
+      if (value.toString().length === 1
+        || (value.toString().length === 2 && key.length === 3)) {
+        if (key.length === 2) {
+          this[key] = `0${value}`;
+        } else {
+          this[key] = `00${value}`;
+        }
+      }
+    });
+  }
+
+  const dDiff = endDate - startDate;
+  const tObj = {};
+  tObj.HH = Math.floor(dDiff / (60 * 60 * 1000));
+  tObj.mm = Math.floor((dDiff - tObj.HH * 60 * 60 * 1000) / (60 * 1000));
+  tObj.ss = Math.floor((dDiff - tObj.HH * 60 * 60 * 1000
+                           - tObj.mm * 60 * 1000) / (1000));
+  tObj.sss = dDiff % 1000;
+
+  prepareForOutput.call(tObj);
+
+  return `${tObj.HH}:${tObj.mm}:${tObj.ss}.${tObj.sss}`;
 }
 
 
@@ -94,8 +126,16 @@ function timeSpanToString(/* startDate, endDate */) {
  *    Date.UTC(2016,3,5,18, 0) => Math.PI
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
-function angleBetweenClockHands(/* date */) {
-  throw new Error('Not implemented');
+function angleBetweenClockHands(date) {
+  let HH = date.getUTCHours();
+  HH = (HH > 11) ? HH - 12 : HH;
+  const MM = date.getUTCMinutes();
+  const handHH = 0.5 * (HH * 60 + MM);
+  const handMM = 6 * MM;
+  const angle = Math.abs(handHH - handMM);
+  const result = (angle > 180) ? 360 - angle : angle;
+
+  return result * (Math.PI / 180);
 }
 
 
