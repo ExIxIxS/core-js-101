@@ -22,7 +22,6 @@ function concatenateStrings(strA, strB) {
   return strA + strB;
 }
 
-
 /**
  * Returns the length of given string.
  *
@@ -68,7 +67,6 @@ function getStringFromTemplate(firstName, lastName) {
 function extractNameFromTemplate(str) {
   return str.replace(/Hello, |!/gi, '');
 }
-
 
 /**
  * Returns a first char of the given string.
@@ -203,11 +201,13 @@ function extractEmails(str) {
  *
  */
 function getRectangleString(width, height) {
-  const sectWidth = width - 2;
+  const BORDERS_AMOUNT = 2;
+  const sectWidth = width - BORDERS_AMOUNT;
   const firstLine = `┌${'─'.repeat(sectWidth)}┐\n`;
   const middleLine = `│${' '.repeat(sectWidth)}│\n`;
   const lastLine = `└${'─'.repeat(sectWidth)}┘\n`;
-  const middleSection = middleLine.repeat(height - 2);
+  const middleSection = middleLine.repeat(height - BORDERS_AMOUNT);
+
   return firstLine + middleSection + lastLine;
 }
 
@@ -229,19 +229,34 @@ function getRectangleString(width, height) {
  *
  */
 function encodeToRot13(message) {
+  const UPPER_A_CODE = 65;
+  const UPPER_Z_CODE = 90;
+  const LOWER_A_CODE = 97;
+  const LOWER_Z_CODE = 122;
+  const ROTATION_AMOUNT = 13;
+
   return message
     .split('')
     .map((char) => {
       const charCode = char.charCodeAt();
-      if (charCode < 65 || charCode > 122 || (charCode > 90 && charCode < 97)) {
+
+      if (charCode < UPPER_A_CODE || charCode > LOWER_Z_CODE
+        || (charCode > UPPER_Z_CODE && charCode < LOWER_A_CODE)) {
         return char;
       }
 
-      const firstLetterCode = ((char === char.toUpperCase())) ? 90 : 122;
-      let newCharCode = charCode + 13;
-      newCharCode = (newCharCode > firstLetterCode) ? newCharCode - 26 : newCharCode;
+      const firstLetterCode = (char === char.toUpperCase())
+        ? UPPER_Z_CODE
+        : LOWER_Z_CODE;
+
+      let newCharCode = charCode + ROTATION_AMOUNT;
+      newCharCode = (newCharCode > firstLetterCode)
+        ? newCharCode - ROTATION_AMOUNT * 2
+        : newCharCode;
+
       return String.fromCharCode(newCharCode);
-    }).join('');
+    })
+    .join('');
 }
 
 /**

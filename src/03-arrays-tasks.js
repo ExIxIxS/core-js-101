@@ -36,10 +36,9 @@ function findElement(arr, value) {
  *    5 => [ 1, 3, 5, 7, 9 ]
  */
 function generateOdds(len) {
-  return Array(len * 2 - 1)
-    .fill(null)
-    .map((item, index) => index + 1)
-    .filter((item) => item % 2 !== 0);
+  const oddMapCallBack = (_, index) => 2 * index + 1;
+
+  return Array.from({ length: len }, oddMapCallBack);
 }
 
 
@@ -241,6 +240,7 @@ function toArrayOfSquares(arr) {
  */
 function getMovingSum(arr) {
   let sum = 0;
+
   return arr.map((item) => {
     const curentNum = item + sum;
     sum += item;
@@ -260,7 +260,7 @@ function getMovingSum(arr) {
  * [ "a" ] => []
  */
 function getSecondItems(arr) {
-  return arr.filter((item, index) => index % 2 !== 0);
+  return arr.filter((_, index) => index % 2 !== 0);
 }
 
 
@@ -279,7 +279,9 @@ function getSecondItems(arr) {
  *  [ 1,2,3,4,5 ] => [ 1, 2,2, 3,3,3, 4,4,4,4, 5,5,5,5,5 ]
  */
 function propagateItemsByPositionIndex(arr) {
-  return arr.map((item, index) => Array(index + 1).fill(item)).flat();
+  return arr
+    .map((item, index) => Array(index + 1).fill(item))
+    .flat();
 }
 
 
@@ -297,7 +299,9 @@ function propagateItemsByPositionIndex(arr) {
  *   [ 10, 10, 10, 10 ] => [ 10, 10, 10 ]
  */
 function get3TopItems(arr) {
-  return arr.sort((a, b) => b - a).slice(0, 3);
+  return arr
+    .sort((a, b) => b - a)
+    .slice(0, 3);
 }
 
 
@@ -315,7 +319,9 @@ function get3TopItems(arr) {
  *   [ 1, '2' ] => 1
  */
 function getPositivesCount(arr) {
-  return arr.filter((item) => item > 0 && typeof item === 'number').length;
+  return arr
+    .filter((item) => item > 0 && typeof item === 'number')
+    .length;
 }
 
 /**
@@ -451,11 +457,14 @@ function sortCitiesArray(arr) {
     if (objA[property] > objB[property]) {
       return 1;
     }
+
     if (objA[property] < objB[property]) {
       return -1;
     }
+
     return 0;
   }
+
   arr.sort((a, b) => compareFunction(a, b, 'city'));
   arr.sort((a, b) => compareFunction(a, b, 'country'));
 
@@ -504,9 +513,10 @@ function getIdentityMatrix(n) {
  *     3, 3   => [ 3 ]
  */
 function getIntervalArray(start, end) {
-  return Array(end - start + 1)
-    .fill(null)
-    .map((item, index) => start + index);
+  const arrLength = end - start + 1;
+  const mapCallBack = (_, index) => start + index;
+
+  return Array.from({ length: arrLength }, mapCallBack);
 }
 
 /**
@@ -556,15 +566,17 @@ function distinct(arr) {
  */
 function group(array, keySelector, valueSelector) {
   const uniqSelectors = Array.from(new Set(array.map((obj) => keySelector(obj))));
-  const mapArr = uniqSelectors.map((selector) => [selector, []]);
+  const mappedArr = uniqSelectors.map((selector) => [selector, []]);
+
   array.map((obj) => {
     const selector = keySelector(obj);
-    const selIndex = mapArr.findIndex((item) => item[0] === selector);
-    mapArr[selIndex][1].push(valueSelector(obj));
+    const selIndex = mappedArr.findIndex((item) => item[0] === selector);
+    mappedArr[selIndex][1].push(valueSelector(obj));
+
     return null;
   });
 
-  return mapArr;
+  return mappedArr;
 }
 
 /**
@@ -600,12 +612,7 @@ function selectMany(arr, childrenSelector) {
  *   [[[ 1, 2, 3]]], [ 0, 0, 1 ]      => 2        (arr[0][0][1])
  */
 function getElementByIndexes(arr, indexes) {
-  let subArr = arr;
-  indexes.map((index) => {
-    subArr = subArr[index];
-    return subArr;
-  });
-  return subArr;
+  return indexes.reduce((result, itemIndex) => result[itemIndex], arr);
 }
 
 
@@ -637,6 +644,7 @@ function swapHeadAndTail(arr) {
   const middle = (halfLength * 2 === arr.length)
     ? []
     : arr[halfLength];
+
   const tail = (halfLength * 2 === arr.length)
     ? arr.slice(halfLength)
     : arr.slice(halfLength + 1);

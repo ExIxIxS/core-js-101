@@ -54,6 +54,7 @@ function getFizzBuzz(i) {
  */
 function getFactorial(n) {
   let fact = 1;
+
   for (let i = 1; i <= n; i += 1) {
     fact *= i;
   }
@@ -76,6 +77,7 @@ function getFactorial(n) {
  */
 function getSumBetweenNumbers(n1, n2) {
   let sum = 0;
+
   for (let i = n1; i <= n2; i += 1) {
     sum += i;
   }
@@ -206,7 +208,8 @@ function isInsideCircle(circle, point) {
  */
 function findFirstSingleChar(str) {
   const charArr = str.split('');
-  const countArr = Array.from(new Set(charArr))
+  const countArr = Array
+    .from(new Set(charArr))
     .map((char) => {
       let amount = 0;
       charArr.forEach((item) => {
@@ -214,12 +217,15 @@ function findFirstSingleChar(str) {
           amount += 1;
         }
       });
+
       return [char, amount];
     });
 
   const resultElement = countArr.find((elem) => elem[1] === 1);
 
-  return (resultElement) ? resultElement[0] : null;
+  return (resultElement)
+    ? resultElement[0]
+    : null;
 }
 
 
@@ -324,8 +330,12 @@ function isCreditCardNumber(ccn) {
     if (index % 2 === 0) {
       return +digit;
     }
+
     const number = digit * 2;
-    return (number > 9) ? ((1 + number) % 10) : number;
+
+    return (number > 9)
+      ? ((1 + number) % 10)
+      : number;
   });
 
   const sum = newArr.reduce((prev, next) => prev + next);
@@ -348,11 +358,17 @@ function isCreditCardNumber(ccn) {
  *   165536 (1+6+5+5+3+6 = 26,  2+6 = 8) => 8
  */
 function getDigitalRoot(num) {
-  const numArr = num.toString().split('').map((item) => +item);
+  const numArr = num
+    .toString()
+    .split('')
+    .map((item) => +item);
+
   if (num.toString().length === 1) {
     return num;
   }
+
   const sum = numArr.reduce((prev, next) => prev + next);
+
   return getDigitalRoot(sum);
 }
 
@@ -442,11 +458,10 @@ function toNaryString(num, n) {
 function getCommonDirectoryPath(pathes) {
   const pathArrs = pathes.map((path) => path.split('/'));
   const result = [];
+
   for (let i = 0; i < pathArrs[0].length; i += 1) {
-    const hoarder = [];
-    pathArrs.forEach((arr) => {
-      hoarder.push(arr[i]);
-    });
+    const hoarder = pathArrs.map((arr) => arr[i]);
+
     if (Array.from(new Set(hoarder)).length === 1) {
       result.push(`${pathArrs[0][i]}/`);
     }
@@ -489,8 +504,10 @@ function getMatrixProduct(m1, m2) {
   const resultArrLen = m1.length;
   const m2Hor = convertVertArrToHor(m2);
   const iterAmount = m2Hor.length;
+
   for (let k = 0; k < resultArrLen; k += 1) {
     const subArr = [];
+
     for (let i = 0; i < resultArrLen; i += 1) {
       let sum = 0;
       for (let j = 0; j < iterAmount; j += 1) {
@@ -574,7 +591,9 @@ function evaluateTicTacToePosition(table) {
     return (uniqChars.length === 1 && (uniqChars[0]));
   });
 
-  return (winArr) ? winArr[0] : undefined;
+  return (winArr)
+    ? winArr[0]
+    : undefined;
 }
 
 
